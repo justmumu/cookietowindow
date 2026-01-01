@@ -1,0 +1,83 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers on version tags like v1.0.0, v2.0.0, etc.
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      
+      - name: Create distribution package
+        run: |
+          mkdir -p dist
+          zip -r dist/CookieToWindow-v${{ steps.get_version.outputs.VERSION }}.zip \
+            manifest.json \
+            background.js \
+            content.js \
+            popup.html \
+            popup.css \
+            popup.js \
+            icons/icon16.png \
+            icons/icon48.png \
+            icons/icon128.png \
+            README.md \
+            LICENSE
+      
+      - name: Generate changelog
+        id: changelog
+        run: |
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          git log $(git describe --tags --abbrev=0 HEAD^)..HEAD --pretty=format:"- %s (%h)" >> $GITHUB_OUTPUT || echo "- Initial release" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: CookieToWindow v${{ steps.get_version.outputs.VERSION }}
+          body: |
+            # CookieToWindow v${{ steps.get_version.outputs.VERSION }}
+            
+            ## What's Changed
+            ${{ steps.changelog.outputs.CHANGELOG }}
+            
+            ## Installation
+            
+            1. Download `CookieToWindow-v${{ steps.get_version.outputs.VERSION }}.zip`
+            2. Extract the ZIP file
+            3. Open Chrome and go to `chrome://extensions/`
+            4. Enable "Developer mode"
+            5. Click "Load unpacked" and select the extracted folder
+            
+            For detailed installation and usage instructions, see the [README](https://github.com/justmumu/cookietowindow#readme)
+            
+            ## Usage with Puppeteer
+            
+            ```javascript
+            const browser = await puppeteer.launch({
+              args: [
+                '--disable-extensions-except=/path/to/CookieToWindow',
+                '--load-extension=/path/to/CookieToWindow'
+              ]
+            });
+            const page = await browser.newPage();
+            await page.goto('https://example.com');
+            const cookies = await page.evaluate(() => window.__ALL_COOKIES__);
+            ```
+            
+            ⚠️ **Security Warning**: This extension exposes HttpOnly cookies. Use only in controlled testing environments.
+          files: dist/CookieToWindow-v${{ steps.get_version.outputs.VERSION }}.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

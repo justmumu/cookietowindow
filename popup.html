@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CookieToWindow</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>CookieToWindow</h1>
+      <p class="subtitle">Extract all cookies including HttpOnly</p>
+    </div>
+    
+    <div class="toggle-container">
+      <label class="toggle-label">
+        <span class="toggle-text">Monitoring Status</span>
+        <div class="toggle-switch">
+          <input type="checkbox" id="toggleEnabled" checked>
+          <span class="slider"></span>
+        </div>
+      </label>
+    </div>
+    
+    <div class="status" id="status">
+      <span class="status-indicator active" id="statusIndicator"></span>
+      <span class="status-text" id="statusText">Active</span>
+    </div>
+    
+    <div class="info">
+      <h3>How to Use:</h3>
+      <ul>
+        <li>All cookies are available via <code>window.__ALL_COOKIES__</code></li>
+        <li>Updates automatically when cookies change</li>
+        <li>Includes HttpOnly and Secure cookies</li>
+        <li>Call <code>window.__REFRESH_COOKIES__()</code> to manually refresh</li>
+      </ul>
+      
+      <h3>For Automation:</h3>
+      <pre>// Puppeteer example
+const cookies = await page.evaluate(() => {
+  return window.__ALL_COOKIES__;
+});</pre>
+    </div>
+    
+    <button id="copyCookies" class="btn">Copy Cookies to Clipboard</button>
+    <button id="viewCookies" class="btn secondary">View Current Cookies</button>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

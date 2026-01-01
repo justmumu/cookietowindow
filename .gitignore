@@ -1,0 +1,48 @@
+# Extra documentation (not needed in repo)
+*_SETUP.md
+*_SUMMARY.md
+DISTRIBUTION.md
+INSTALL_GUIDE.md
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon files
+._*
+
+# Thumbnails
+Thumbs.db
+
+# Temporary files
+*~
+*.swp
+*.swo
+*.tmp
+
+# Build output
+dist/
+
+# SVG source files (keep only PNG icons)
+*.svg
+
+# Editor directories
+.vscode/
+.idea/
+*.sublime-*
+
+# Development scripts (keep only in repo, not in dist)
+generate_*.js
+create_*.js
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS generated files
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
