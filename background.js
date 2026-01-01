@@ -86,6 +86,14 @@ async function injectCookiesIntoPage(tabId, url) {
   }
   
   try {
+    // Validate tab still exists before attempting injection
+    try {
+      await chrome.tabs.get(tabId);
+    } catch (tabError) {
+      // Tab was closed or doesn't exist - this is expected, silently return
+      return;
+    }
+    
     const cookies = await getCookiesForUrl(url);
     
     await chrome.scripting.executeScript({
@@ -105,6 +113,12 @@ async function injectCookiesIntoPage(tabId, url) {
     
     console.log(`[CookieToWindow] Injected ${cookies.length} cookies into tab ${tabId}`);
   } catch (error) {
+    // Check if this is a "tab not found" error (race condition)
+    if (error.message && error.message.includes('No tab with id')) {
+      // Tab was closed during injection - expected, silently ignore
+      return;
+    }
+    // Log only unexpected errors
     console.error('[CookieToWindow] Error injecting cookies:', error);
   }
 }
