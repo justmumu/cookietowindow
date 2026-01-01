@@ -39,8 +39,22 @@ jobs:
       - name: Generate changelog
         id: changelog
         run: |
+          # Fetch all tags to ensure we have complete history
+          git fetch --tags --force
+          
+          # Get the current tag
+          CURRENT_TAG="v${{ steps.get_version.outputs.VERSION }}"
+          
+          # Get previous tag (excluding current)
+          PREVIOUS_TAG=$(git tag --sort=-creatordate | grep -v "^${CURRENT_TAG}$" | head -1)
+          
+          # Generate changelog
           echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-          git log $(git describe --tags --abbrev=0 HEAD^)..HEAD --pretty=format:"- %s" >> $GITHUB_OUTPUT || echo "- Initial release" >> $GITHUB_OUTPUT
+          if [ -z "$PREVIOUS_TAG" ]; then
+            echo "- Initial release" >> $GITHUB_OUTPUT
+          else
+            git log ${PREVIOUS_TAG}..${CURRENT_TAG} --pretty=format:"- %s" >> $GITHUB_OUTPUT
+          fi
           echo "EOF" >> $GITHUB_OUTPUT
       
       - name: Create GitHub Release
