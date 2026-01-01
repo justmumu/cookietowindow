@@ -48,14 +48,19 @@ jobs:
           # Get previous tag (excluding current)
           PREVIOUS_TAG=$(git tag --sort=-creatordate | grep -v "^${CURRENT_TAG}$" | head -1)
           
-          # Generate changelog
-          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          # Store changelog in variable first
           if [ -z "$PREVIOUS_TAG" ]; then
-            echo "- Initial release" >> $GITHUB_OUTPUT
+            CHANGES="- Initial release"
           else
-            git log ${PREVIOUS_TAG}..${CURRENT_TAG} --pretty=format:"- %s" >> $GITHUB_OUTPUT
+            CHANGES=$(git log ${PREVIOUS_TAG}..${CURRENT_TAG} --pretty=format:"- %s")
           fi
-          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # Write to output with proper formatting
+          {
+            echo "CHANGELOG<<EOF"
+            echo "$CHANGES"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
       
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
