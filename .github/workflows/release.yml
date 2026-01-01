@@ -40,7 +40,7 @@ jobs:
         id: changelog
         run: |
           echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-          git log $(git describe --tags --abbrev=0 HEAD^)..HEAD --pretty=format:"- %s (%h)" >> $GITHUB_OUTPUT || echo "- Initial release" >> $GITHUB_OUTPUT
+          git log $(git describe --tags --abbrev=0 HEAD^)..HEAD --pretty=format:"- %s" >> $GITHUB_OUTPUT || echo "- Initial release" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
       
       - name: Create GitHub Release
@@ -48,22 +48,28 @@ jobs:
         with:
           name: CookieToWindow v${{ steps.get_version.outputs.VERSION }}
           body: |
-            # CookieToWindow v${{ steps.get_version.outputs.VERSION }}
+            ## ✨ Highlights
             
-            ## What's Changed
-            ${{ steps.changelog.outputs.CHANGELOG }}
+            - 🍪 **Access HttpOnly cookies** - Read all cookies including HttpOnly via `window.__ALL_COOKIES__`
+            - ⚡ **Real-time updates** - Automatically updates when cookies change
+            - 🤖 **Automation ready** - Perfect for Puppeteer, Selenium, Playwright
+            - 🔄 **Zero interaction** - Works in headless Chrome without manual steps
             
-            ## Installation
+            ---
             
-            1. Download `CookieToWindow-v${{ steps.get_version.outputs.VERSION }}.zip`
+            ## 📦 Installation
+            
+            1. Download `CookieToWindow-v${{ steps.get_version.outputs.VERSION }}.zip` below
             2. Extract the ZIP file
-            3. Open Chrome and go to `chrome://extensions/`
-            4. Enable "Developer mode"
-            5. Click "Load unpacked" and select the extracted folder
+            3. Open Chrome → `chrome://extensions/`
+            4. Enable **Developer mode**
+            5. Click **Load unpacked** and select the extracted folder
             
-            For detailed installation and usage instructions, see the [README](https://github.com/justmumu/cookietowindow#readme)
+            📖 [Full Documentation](https://github.com/justmumu/cookietowindow#readme)
             
-            ## Usage with Puppeteer
+            ---
+            
+            ## 🚀 Quick Start
             
             ```javascript
             const browser = await puppeteer.launch({
@@ -74,10 +80,30 @@ jobs:
             });
             const page = await browser.newPage();
             await page.goto('https://example.com');
+            
+            // Access all cookies including HttpOnly
             const cookies = await page.evaluate(() => window.__ALL_COOKIES__);
+            console.log(cookies);
             ```
             
-            ⚠️ **Security Warning**: This extension exposes HttpOnly cookies. Use only in controlled testing environments.
+            ---
+            
+            ## 📋 What's Changed
+            
+            ${{ steps.changelog.outputs.CHANGELOG }}
+            
+            ---
+            
+            ## ⚠️ Security Warning
+            
+            **This extension intentionally bypasses HttpOnly cookie protection.** 
+            
+            - ❌ Never use on production websites
+            - ❌ Never use on sites with sensitive data
+            - ✅ Only use in isolated testing environments
+            - ✅ Only use for automation and development
+            
+            The developers are not responsible for any security issues arising from misuse of this extension.
           files: dist/CookieToWindow-v${{ steps.get_version.outputs.VERSION }}.zip
           draft: false
           prerelease: false
